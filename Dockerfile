@@ -37,6 +37,7 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
  
 RUN chown -R 1000:1000 /moonbin 
 ENV PATH=/moonbin/.bun/bin:/moonbin/.moon/bin:$PATH
+RUN echo "PATH=${PATH}" >> /etc/environment
 
 RUN cat > /usr/local/bin/node << 'EOF'
 #!/bin/bash
