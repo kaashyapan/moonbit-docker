@@ -15,10 +15,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # install moonbit and bun and move the binaries to a persistent location that is not HOME
 
-RUN mkdir /moonbin
-RUN curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash 
-RUN curl -fsSL https://bun.sh/install | bash
-RUN mv /root/.bun /moonbin && mv /root/.moon /moonbin
+RUN mkdir /moon
+RUN curl -fsSL https://cli.moonbitlang.com/install/unix.sh | MOON_HOME=/moon bash 
+RUN curl -fsSL https://bun.sh/install | BUN_INSTALL=/moon bash
 
 ARG DEV_USER=moondev
 ENV DEV_USER=${DEV_USER}
@@ -35,8 +34,8 @@ RUN mkdir -p /run/sshd && ssh-keygen -A
 RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config && \
     sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
  
-RUN chown -R 1000:1000 /moonbin 
-ENV PATH=/moonbin/.bun/bin:/moonbin/.moon/bin:$PATH
+RUN chown -R 1000:1000 /moon 
+ENV PATH=/moon/bin:$PATH
 
 # Make environment variables available when loggin in via ssh and for other shells
 
