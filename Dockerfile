@@ -2,10 +2,10 @@ FROM debian:sid
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     openssh-server \
     sudo \
-    curl \
+    curl ca-certificates \
     git unzip \
     locales \
     && sed -i 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen \
@@ -37,6 +37,9 @@ RUN sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/
  
 RUN chown -R 1000:1000 /moonbin 
 ENV PATH=/moonbin/.bun/bin:/moonbin/.moon/bin:$PATH
+
+# Make environment variables available when loggin in via ssh and for other shells
+
 RUN echo "MOONBIT_NEW_NATIVE=1" >> /etc/environment && \
     echo "MOON_HOME=/home/${DEV_USER}/.moon" >> /etc/environment && \
     echo "BUN_INSTALL_CACHE_DIR=/home/${DEV_USER}/.bun" >> /etc/environment && \
@@ -73,5 +76,12 @@ EXPOSE 22
 USER ${DEV_USER}
 WORKDIR /home/${DEV_USER}
 
+# Make environment variables available when running/attaching a container
 
-CMD ["/bin/bash", "-c", "echo ${DEV_USER}:${DEV_PASSWORD} | sudo chpasswd > /dev/null 2>&1 && sudo /usr/sbin/sshd > /dev/null 2>&1 && exec bash"]
+ENV MOONBIT_NEW_NATIVE=1
+ENV MOON_HOME=/home/${DEV_USER}/.moon
+ENV BUN_INSTALL_CACHE_DIR=/home/${DEV_USER}/.bun
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+CMD ["/bin/bash", "-c", "echo ${DEV_USER}:${DEV_PASSWORD} | sudo chpasswd > /dev/null 2>&1 && sudo /usr/sbin/sshd > /dev/null 2>&1 && exec /bin/bash"]
